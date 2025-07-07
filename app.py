@@ -57,13 +57,13 @@ while cap.isOpened():
             z = angles[2] * 360
 
             # see where the user's head is tilting
-            if y < -10:
+            if y < -15:
                 text = "HEAD_LEFT"
-            elif y > 10:
+            elif y > 15:
                 text = "HEAD_RIGHT"
-            elif x < -10:
+            elif x < -15:
                 text = "HEAD_DOWN"
-            elif x > 10:
+            elif x > 15:
                 text = "HEAD_UP"
             else:
                 text = "HEAD_FORWARD"
