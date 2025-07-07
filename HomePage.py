@@ -1,68 +1,77 @@
 import streamlit as st
-from operator import imod
-
-for i in range(14):
-    st.markdown("")
 
 st.markdown("""
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+<style>
+    html, body, .page {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .barlow-semibold {
+        font-family: "Barlow", sans-serif;
+        font-weight: 600;
+        font-style: normal;
+    }        
     
-    <style>
-        section.main > div {
-        max-width:98rem;
-        }
-        .stApp .main .block-container{
-            padding: 0rem;
-            padding-top: 1.72rem;
-        }
-        .stApp [data-testid='stSidebar']>div:nth-child(1)>div:nth-child(2){
-            padding-top: 0.5rem
-        }
-        img[data-testid="stLogo"] {
-                height: 3.5rem;
-        }
-        .stRadio div[role='radiogroup']>label{
-            margin-right:5px
-            padding-top: 0.1rem
-        }
-        
-        div[data-testid="stSidebarHeader"] {
-            justify-content: center;
-            align-items: start;
-            height: 1px;
-            padding: 1.2em;
-            padding-left: 2.6rem;
-        }
+    .mainbg {
+        width: 100%;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        //background-image: url('GradientMesh.png')
+        //background-image: linear-gradient(to right, #2da1d6 , #66dbff);
+        background: radial-gradient(at 30% 20%, #f06acb, transparent 60%),
+            radial-gradient(at 70% 25%, #6f5cff, transparent 60%),
+            radial-gradient(at 30% 80%, #c6ffc6, transparent 60%),
+            radial-gradient(at 90% 90%, #6a84b5, transparent 60%);
+        background-color: #d4d9ff;
+        padding: 0 80px;
+        box-sizing: border-box;
+    }
 
-        .page{
-            margin : 0;
-            padding : 0;
-            background-color : red;
-        }
+    .titleback {
+        ackground-image: linear-gradient(to right, #2da1d6 , #66dbff);
+        border-radius: 132px;
+        //padding: 35px 130px 35px 88px;
+        //text-align: center;
+        width: 90%;
+    }
 
-        .titleback{
-            background-color : #001f37;
-            border-radius : 150px;
+    .titleheader {
+        font-size: 135px;
+        margin: 0;
+        padding: 0;
+        color: #000000;
+    }
+    section.main > div {
+        max-width: 98rem;
+    }
+    .stApp .main .block-container {
+        padding: 0rem;
+        padding-top: 1.72rem;
+    }
+    [data-testid=stSidebar] {
+        background-image: linear-gradient(#000b14, #001627);
+        color: white;
+    }
+</style>
 
-            margin-left : 80px;
-            margin-right : 80px;
-
-            padding-left : 75px;
-            padding-top : 25px;
-            padding-bottom: 45px;
-            padding-right: 130px;
-        }
-
-        .titleheader{
-            font-size : 80px;
-            padding : 0;
-            margin : 0;
-        }
-        
-    </style>
-    <body class='page'>
-        <div class = 'titleback'>
-            <h1 class='titleheader'>StaySharp</h1>
-            <p style = 'margin : 0; padding : 0;'>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus rutrum, nibh et vulputate rutrum, est turpis sollicitudin felis, eu pharetra arcu ante vitae justo.</p>
+<body class='page'>
+    <div class='mainbg' background='GradientMesh.png'>
+        <div class='titleback'>
+            <h1 class='titleheader'>PixPlore</h1>
+            <h3 class = 'barlow-semibold', style='margin-top: 0px; margin-bottom: 5px; padding: 0; color: #000000; font-style:barlow;'>Learning through lenses, growing through curiosity.</h3>
+            <h4 class = 'barlow-semibold', style='margin-top: 10px; padding: 0;color: #000000;'>
+                Where ordinary objects become valuable lessons, simply through a lens.
+            </h4>
         </div>
-    </body>    
-""", unsafe_allow_html=True) 
+    </div>
+</body>
+""", unsafe_allow_html=True)
