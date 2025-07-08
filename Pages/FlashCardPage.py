@@ -142,7 +142,7 @@ document.querySelectorAll('.flip-card').forEach(card => {
 """
 
 # Daftar kartu
-df = pd.read_csv('D:\Github\PixPlore\PixPlore\history.csv')
+df = pd.read_csv('./history.csv')
 cards = [{"label": row['word'], "img": row['image']} for _, row in df.iterrows()]
 
 border_colors = [
