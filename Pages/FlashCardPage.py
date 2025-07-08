@@ -61,7 +61,7 @@ section[data-testid="stMain"] {
 }
 [data-testid="stSidebar"] * {
     color: white;
-}        
+}
 
 </style>
 """)
@@ -185,66 +185,12 @@ document.querySelectorAll('.flip-card').forEach(card => {
         card.classList.toggle('clicked');
     });
 });
-
-function toggleDelete(index) {
-    const delBtn = document.getElementById(`delete-${index}`);
-    if (delBtn.style.display === "block") {
-        delBtn.style.display = "none";
-    } else {
-        delBtn.style.display = "block";
-    }
-}
-
-function deleteCard(index) {
-    window.location.href = "?index=" + index;
-}
-
 </script>
 """
 
 try:
     df = pd.read_csv('./history.csv')
     cards = [{"label": row['word'], "img": row['image']} for _, row in df.iterrows()]
-
-    params = st.query_params
-    index_to_delete = params.get("index")
-    print("Yoel")
-
-    if index_to_delete is not None:
-        print("Marvel")
-        try:
-            index = int(index_to_delete)
-            print(index)
-            if 0 <= index < len(cards):
-                del cards[index]
-                st.session_state.flashcards = cards
-
-                print("Debug")
-                df = df.drop(index).reset_index(drop=True)
-                df.to_csv("./history.csv", index=False)
-
-                st.query_params.clear()  
-                st.rerun()  
-        except ValueError:
-            st.warning("Invalid index provided.")
-    else:
-        print("Ethan")
-
-    # # Add query param endpoint (simulate card deletion)
-    # query_params = st.query_params
-    # if "index" in query_params:
-    #     idx = int(query_params["index"][0])
-    #     if idx in df.index:
-    #         df.drop(index=idx, inplace=True)
-    #         df.reset_index(drop=True, inplace=True)
-    #         df.to_csv('./history.csv', index=False)
-    #         st.query_params.update({"page": "FlashCardPage"})
-    #         st.experimental_rerun()
-    #     else:
-    #         raise IndexError(f"Index {idx} not found in DataFrame")
-        
-    # # Clear query params to avoid repeated deletions
-    # st.query_params.update({"page": "FlashCardPage"})
 
     border_colors = [
         "#A0F8FF", "#FF8CC6", "#F86666", "#90D76B",
@@ -253,18 +199,12 @@ try:
         "#B3C7FF", "#66CFFF", "#6BD6D3", "#FFE266"
     ]
 
-    # Buat kartu HTML
     html = '<div class="main"><div class="scroll-container"><div class="card-container">'
 
     for i, card in enumerate(cards):
-        border_number = (i % 16) + 1 # Border cycles
+        border_number = (i % 16) + 1
         border_b64 = image_to_base64(f"flashcard_borders/{border_number}.png")
         border_color = border_colors[i % len(border_colors)]
-
-        # col1, col2 = st.columns([9, 1])
-        # with col2:
-        #     if st.button("⋮", key=f"menu_{i}"):
-        #         st.session_state.delete_index = i
 
         html += f'''
             <div class="flip-card">
@@ -278,8 +218,6 @@ try:
                     <div class="flip-card-back" style="background-color: {border_color};">
                         <div style="text-align: center; padding: 10px; color: black;">
                             {card["label"]}
-                            <div class="burger" onclick="toggleDelete({i})">&#x22EE;</div>
-                            <button class="delete-button" id="delete-{i}" onclick="deleteCard({i})">🗑️</button>
                         </div>
                     </div>
                 </div>
@@ -287,7 +225,6 @@ try:
         '''
     html += '</div></div></div>'
 
-    # Gabungkan semua dan tampilkan
     components.html(card_css + html + card_js, height=550, scrolling=True)
 
 except Exception as e:
