@@ -41,9 +41,13 @@ def get_translated_and_spelled_world(word):
                         "type": "array",
                         "items": {"type": "string"},
                         "description": "The spelling of the Indonesian word"
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Describe the word 1 short sentence that is understandable for children in Bahasa Indonesia"
                     }
                 },
-                "required": ["translated_word", "spelling"]
+                "required": ["translated_word", "spelling", "description"]
             }
         }
     ]
@@ -62,12 +66,13 @@ def get_translated_and_spelled_world(word):
     parsed = json.loads(args)
     return parsed
 
-def history(image_path, translated_word, spelled_word, csv_path='history.csv'):
+def history(image_path, translated_word, spelled_word, description, csv_path='history.csv'):
     spelled_word = " - ".join(spelled_word)
 
     data = {
         "word": translated_word,
         "spelling": spelled_word,
+        "description": description,
         "image": image_path
     }
 
@@ -86,7 +91,7 @@ def upload_to_cloudinary(image_path):
     print("Successfully Upload To Cloudinary")
     return global_path['secure_url']
 
-PATH = r"C:\Users\Yoel\Documents\Calvin_AI_Youth_Camp\PixPlore\download (1).jpeg"
+PATH = r"C:\Users\Yoel\Documents\Calvin_AI_Youth_Camp\PixPlore\download.jpeg"
 
 img = Image.open(PATH).convert("RGB")
 img = transform(img)
@@ -106,7 +111,7 @@ print(f"Detected: {category_name} ({100 * score:.1f}%)")
 
 spell_data = get_translated_and_spelled_world(category_name)
 global_path = upload_to_cloudinary(PATH)
-history(global_path, spell_data['translated_word'], spell_data['spelling'])
+history(global_path, spell_data['translated_word'], spell_data['spelling'], spell_data['description'])
 spelling_sentence = f"Mari Mengejanya Bersama: {' - '.join(spell_data['spelling'])}. {spell_data['translated_word'].capitalize()}"
 
 print("Generated TTS text:", spelling_sentence)
