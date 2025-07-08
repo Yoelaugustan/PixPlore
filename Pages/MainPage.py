@@ -24,7 +24,7 @@ def get_spelled_and_description_word(word):
     functions = [
         {
             "name": "spell_word",
-            "description": "You Are a Great Kindergarten Teacher, Can you Spell the word one letter at a time. So the Children Could Understand",
+            "description": f"{option_style}",
             "parameters": {
                 "type": "object",
                 "properties": {
@@ -35,7 +35,7 @@ def get_spelled_and_description_word(word):
                     },
                     "description": {
                         "type": "string",
-                        "description": f"Describe the {word} in 1 short sentence that is understandable for children"
+                        "description": f"Describe the {word} in around 1 to 3 short sentences that is understandable for children"
                     }
                 },
                 "required": ["spelling", "description"]
@@ -50,7 +50,8 @@ def get_spelled_and_description_word(word):
             {"role": "user", "content": f"Spell the {word} letter by letter for children to spell."}
         ],
         functions=functions,
-        function_call={"name": "spell_word"}
+        function_call={"name": "spell_word"},
+        temperature=0.2
     )
 
     args = response.choices[0].message.function_call.arguments
@@ -150,11 +151,11 @@ st.html(
         font-weight: bold;
     }
 
-    [data-testid="stSelectbox"] {
-        background-color: #0b0b40;
-        border-radius: 12px;
-        padding: 10px;
-    }
+    # [data-testid="stSelectbox"] {
+    #     background-color: #0b0b40;
+    #     border-radius: 12px;
+    #     padding: 10px;
+    # }
 
     [data-testid="stSelectbox"] label {
         text-shadow: 0px 0.5px 2px #0000ff;
@@ -175,11 +176,33 @@ st.html("""
     </div>
 """)
 
-option = st.selectbox(
-    'Which Voice Do You Want',
-    ('Email', 'Home phone', 'Mobile phone')
-)
+with st.sidebar:   
+    chosen_option_voice = st.selectbox(
+        'Choose your teacher!',
+        ('Friendly and helpful (suggested)', 'Bright, expressive and playful', 'Calm, evenly paced', 'Expressive and engaging', 'Serious', 'Soft and Gentle')
+    )
+    if chosen_option_voice:
+        if chosen_option_voice == 'Friendly and helpful (suggested)':
+            option_voice = 'nova'
+        elif chosen_option_voice == 'Bright, expressive and playful':
+            option_voice = 'shimmer'
+        elif chosen_option_voice == 'Calm, evenly paced':
+            option_voice = 'echo'
+        elif chosen_option_voice == 'Expressive and engaging':
+            option_voice = 'fable'
+        elif chosen_option_voice == 'Serious':
+            option_voice = 'onyx'
 
+    chosen_option_style = st.selectbox(
+        'Choose the teaching style!',
+        ('Teacher', 'Friend', 'Comedian')
+    )
+    if chosen_option_style == 'Teacher':
+        option_style = 'You are a great and caring kindergarten teacher, Can you explain the word simply in a way which the children could easily understand'
+    elif chosen_option_style == 'Friend':
+        option_style = 'You are a kindergarten student with above-average intelligence, one of your close friends is asking for your help as he struggles to understand something, can you help them?'
+    elif chosen_option_style == 'Comedian':
+        option_style = 'You are a great, humerous kindergarten teacher, you often crack jokes to help students have a fun time while learning, while at the same time, still allowing them to learn well.'
 # enable = st.checkbox("Enable camera")
 picture = st.camera_input("", disabled=False, label_visibility="hidden")
 
@@ -208,14 +231,21 @@ if picture:
         spell_data = get_spelled_and_description_word(category_name)
         global_path = upload_to_cloudinary(temp_path)
 
+        if chosen_option_style == 'Teacher':
+            thing_to_say = "Are You Ready Kids, Let's Spell This Together."
+        elif chosen_option_style == 'Friend':
+            thing_to_say = "Are You Ready? Spell this with me!"
+        elif chosen_option_style == 'Comedian':
+            thing_to_say = "Alright, pay attention! This is how you spell it."
+
         history(global_path, category_name, spell_data['spelling'], spell_data['description'])
-        spelling_sentence = f"Are You Ready Kids, Let's Spell This Together: {' -- '.join(spell_data['spelling']).upper()}. {category_name.upper()} -- {spell_data['description']}"
+        spelling_sentence = f"{thing_to_say}: {' -- '.join(spell_data['spelling']).upper()}. {category_name.upper()} -- {spell_data['description']}"
 
         print("Generated TTS text:", spelling_sentence)
 
         response = client.audio.speech.create(
             model="gpt-4o-mini-tts",
-            voice="onyx",
+            voice=f"{option_voice}",
             input=spelling_sentence,
             response_format="wav"
         )
