@@ -20,29 +20,25 @@ cloudinary.config(
 
 client = OpenAI(api_key="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")
 
-def get_translated_and_spelled_world(word):
+def get_spelled_and_description_word(word):
     functions = [
         {
-            "name": "spell_word_indonesian",
-            "description": "Translate an English word into Indonesian and spell the Indonesian word letter by letter for children.",
+            "name": "spell_word",
+            "description": f"{option_style}",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "translated_word": {
-                        "type": "string",
-                        "description": "The translated word in Bahasa Indonesia"
-                    },
                     "spelling": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "The spelling of the Indonesian word"
+                        "description": "Spell the word letter by letter so children could understand"
                     },
                     "description": {
                         "type": "string",
-                        "description": "Describe the word 1 short sentence that is understandable for children in Bahasa Indonesia"
+                        "description": f"Describe the {word} in around 1 to 3 short sentences that is understandable for children"
                     }
                 },
-                "required": ["translated_word", "spelling", "description"]
+                "required": ["spelling", "description"]
             }
         }
     ]
@@ -50,22 +46,23 @@ def get_translated_and_spelled_world(word):
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=[
-            {"role": "system", "content": "You are a helpful assistant for children who speaks in Bahasa Indonesia."},
-            {"role": "user", "content": f"Translate the English word '{word}' to Bahasa Indonesia, then spell the translated word letter by letter for children."}
+            {"role": "system", "content": "You are a helpful assistant for children to help spell a word"},
+            {"role": "user", "content": f"Spell the {word} letter by letter for children to spell."}
         ],
         functions=functions,
-        function_call={"name": "spell_word_indonesian"}
+        function_call={"name": "spell_word"},
+        temperature=0.2
     )
 
     args = response.choices[0].message.function_call.arguments
     parsed = json.loads(args)
     return parsed
 
-def history(image_path, translated_word, spelled_word, description, csv_path='history.csv'):
+def history(image_path, word, spelled_word, description, csv_path='history.csv'):
     spelled_word = " - ".join(spelled_word).upper()
 
     data = {
-        "word": translated_word.upper(),
+        "word": word.upper(),
         "spelling": spelled_word,
         "description": description,
         "image": image_path
@@ -153,6 +150,18 @@ st.html(
     .headertext{
         font-weight: bold;
     }
+
+    # [data-testid="stSelectbox"] {
+    #     background-color: #0b0b40;
+    #     border-radius: 12px;
+    #     padding: 10px;
+    # }
+
+    [data-testid="stSelectbox"] label {
+        text-shadow: 0px 0.5px 2px #0000ff;
+        margin-bottom: 10px;
+    }
+
     
     </style>
 
@@ -165,8 +174,35 @@ st.html("""
     <div class="topbox" style="font-size:20px;">
         <p class="texttitle">Pix-it!</p>
     </div>
-    """)
+""")
 
+with st.sidebar:   
+    chosen_option_voice = st.selectbox(
+        'Choose your teacher!',
+        ('Friendly and helpful (suggested)', 'Bright, expressive and playful', 'Calm, evenly paced', 'Expressive and engaging', 'Serious', 'Soft and Gentle')
+    )
+    if chosen_option_voice:
+        if chosen_option_voice == 'Friendly and helpful (suggested)':
+            option_voice = 'nova'
+        elif chosen_option_voice == 'Bright, expressive and playful':
+            option_voice = 'shimmer'
+        elif chosen_option_voice == 'Calm, evenly paced':
+            option_voice = 'echo'
+        elif chosen_option_voice == 'Expressive and engaging':
+            option_voice = 'fable'
+        elif chosen_option_voice == 'Serious':
+            option_voice = 'onyx'
+
+    chosen_option_style = st.selectbox(
+        'Choose the teaching style!',
+        ('Teacher', 'Friend', 'Comedian')
+    )
+    if chosen_option_style == 'Teacher':
+        option_style = 'You are a great and caring kindergarten teacher, Can you explain the word simply in a way which the children could easily understand'
+    elif chosen_option_style == 'Friend':
+        option_style = 'You are a kindergarten student with above-average intelligence, one of your close friends is asking for your help as he struggles to understand something, can you help them?'
+    elif chosen_option_style == 'Comedian':
+        option_style = 'You are a great, humerous kindergarten teacher, you often crack jokes to help students have a fun time while learning, while at the same time, still allowing them to learn well.'
 # enable = st.checkbox("Enable camera")
 picture = st.camera_input("", disabled=False, label_visibility="hidden")
 
@@ -192,17 +228,24 @@ if picture:
 
         print(f"Detected: {category_name} ({100 * score:.1f}%)")
 
-        spell_data = get_translated_and_spelled_world(category_name)
+        spell_data = get_spelled_and_description_word(category_name)
         global_path = upload_to_cloudinary(temp_path)
 
-        history(global_path, spell_data['translated_word'], spell_data['spelling'], spell_data['description'])
-        spelling_sentence = f"Mari Mengejanya Bersama: {' -- '.join(spell_data['spelling']).upper()}. {spell_data['translated_word'].upper()}"
+        if chosen_option_style == 'Teacher':
+            thing_to_say = "Are You Ready Kids, Let's Spell This Together."
+        elif chosen_option_style == 'Friend':
+            thing_to_say = "Are You Ready? Spell this with me!"
+        elif chosen_option_style == 'Comedian':
+            thing_to_say = "Alright, pay attention! This is how you spell it."
+
+        history(global_path, category_name, spell_data['spelling'], spell_data['description'])
+        spelling_sentence = f"{thing_to_say}: {' -- '.join(spell_data['spelling']).upper()}. {category_name.upper()} -- {spell_data['description']}"
 
         print("Generated TTS text:", spelling_sentence)
 
         response = client.audio.speech.create(
             model="gpt-4o-mini-tts",
-            voice="onyx",
+            voice=f"{option_voice}",
             input=spelling_sentence,
             response_format="wav"
         )
@@ -213,7 +256,7 @@ if picture:
     st.markdown(
         f"""
         <div class="textbox">
-            <p class="texttitle text", style="font-size:35px;">{spell_data['translated_word'].upper()}</p>
+            <p class="texttitle text", style="font-size:35px;">{category_name.upper()}</p>
             <p class="textdescribe text", style="font-size:18px;">{spell_data['description']}</p>
         </div>
         """,
