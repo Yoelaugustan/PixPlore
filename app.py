@@ -19,12 +19,6 @@ cloudinary.config(
 
 client = OpenAI(api_key="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")
 
-transform = transforms.Compose([
-    transforms.Resize((224, 224)),
-    transforms.ToTensor(),
-    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-])
-
 def get_translated_and_spelled_world(word):
     functions = [
         {
@@ -63,10 +57,10 @@ def get_translated_and_spelled_world(word):
     return parsed
 
 def history(image_path, translated_word, spelled_word, csv_path='history.csv'):
-    spelled_word = " - ".join(spelled_word)
+    spelled_word = " - ".join(spelled_word).upper()
 
     data = {
-        "word": translated_word,
+        "word": translated_word.upper(),
         "spelling": spelled_word,
         "image": image_path
     }
@@ -86,10 +80,8 @@ def upload_to_cloudinary(image_path):
     print("Successfully Upload To Cloudinary")
     return global_path['secure_url']
 
-PATH = r"C:\Users\Yoel\Documents\Calvin_AI_Youth_Camp\PixPlore\download (1).jpeg"
-
+PATH = r"C:\Users\Yoel\Documents\Calvin_AI_Youth_Camp\PixPlore\download (7).jpeg"
 img = Image.open(PATH).convert("RGB")
-img = transform(img)
 
 weights = MobileNet_V3_Large_Weights.DEFAULT
 model = mobilenet_v3_large(weights=weights)
@@ -107,7 +99,7 @@ print(f"Detected: {category_name} ({100 * score:.1f}%)")
 spell_data = get_translated_and_spelled_world(category_name)
 global_path = upload_to_cloudinary(PATH)
 history(global_path, spell_data['translated_word'], spell_data['spelling'])
-spelling_sentence = f"Mari Mengejanya Bersama: {' - '.join(spell_data['spelling'])}. {spell_data['translated_word'].capitalize()}"
+spelling_sentence = f"Mari Mengejanya Bersama: {' -- '.join(spell_data['spelling']).upper()}. {spell_data['translated_word'].upper()}"
 
 print("Generated TTS text:", spelling_sentence)
 
@@ -115,7 +107,7 @@ AUDIO_FILENAME = "spelling.wav"
 
 response = client.audio.speech.create(
     model="gpt-4o-mini-tts",
-    voice="nova",
+    voice="onyx",
     input=spelling_sentence,
     response_format="wav"
 )
