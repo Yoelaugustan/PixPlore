@@ -38,11 +38,11 @@ section[data-testid="stMain"] {
 }       
 
 [data-testid="stSidebar"] {
-    background: linear-gradient(#000b14, #001627) !important;
-    color: white !important;
+    background: linear-gradient(#000b14, #001627);
+    color: white;
 }
 [data-testid="stSidebar"] * {
-    color: white !important;
+    color: white;
 }
 
 .texttitle {
