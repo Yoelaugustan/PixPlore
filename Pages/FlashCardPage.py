@@ -141,20 +141,20 @@ document.querySelectorAll('.flip-card').forEach(card => {
 </script>
 """
 
-# Daftar kartu
-df = pd.read_csv('./history.csv')
-cards = [{"label": row['word'], "img": row['image']} for _, row in df.iterrows()]
+try:
+    df = pd.read_csv('./history.csv')
+    cards = [{"label": row['word'], "img": row['image']} for _, row in df.iterrows()]
 
-border_colors = [
-    "#A0F8FF", "#FF8CC6", "#F86666", "#90D76B",
-    "#CBA3FF", "#FFF685", "#A3DFFF", "#FCA3B7",
-    "#D6FF70", "#B5FBC0", "#FFB347", "#FFD8A9",
-    "#B3C7FF", "#66CFFF", "#6BD6D3", "#FFE266"
-]
+    border_colors = [
+        "#A0F8FF", "#FF8CC6", "#F86666", "#90D76B",
+        "#CBA3FF", "#FFF685", "#A3DFFF", "#FCA3B7",
+        "#D6FF70", "#B5FBC0", "#FFB347", "#FFD8A9",
+        "#B3C7FF", "#66CFFF", "#6BD6D3", "#FFE266"
+    ]
 
-# Buat kartu HTML
-html = '<div class="main"><div class="scroll-container"><div class="card-container">'
-if (cards):
+    # Buat kartu HTML
+    html = '<div class="main"><div class="scroll-container"><div class="card-container">'
+
     for i, card in enumerate(cards):
         border_number = (i % 16) + 1 # Border cycles
         border_b64 = image_to_base64(f"flashcard_borders/{border_number}.png")
@@ -181,5 +181,5 @@ if (cards):
 
     # Gabungkan semua dan tampilkan
     components.html(card_css + html + card_js, height=500, scrolling=True)
-else:
+except:
     st.title("Please snap one picture first!")
