@@ -1,7 +1,10 @@
 import streamlit as st
 
-st.markdown(
+st.html(
     """
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <style>
     .texttitle{
         font-size: 70px;
@@ -69,17 +72,14 @@ st.markdown(
 
     <body>
     </body>
-    """,
-    unsafe_allow_html=True
+    """
 )
 
-st.markdown("""
+st.html("""
     <div class="topbox" style="font-size:20px;">
         <p class="texttitle">Pix-it!</p>
     </div>
-    """,
-    unsafe_allow_html=True
-)
+    """)
 
 # enable = st.checkbox("Enable camera")
 picture = st.camera_input("", disabled=False, label_visibility="hidden")
@@ -95,8 +95,8 @@ if picture:
     st.markdown(
         f"""
         <div class="textbox">
-            <p class="text, texttitle">{ImagePredict}</p>
-            <p class="text, textdescribe">{ImageDescription}</p>
+            <p class="texttitle text", style="font-size:35px;">{ImagePredict}</p>
+            <p class="textdescribe text", style="font-size:18px;">{ImageDescription}</p>
         </div>
         """,
         unsafe_allow_html=True
