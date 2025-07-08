@@ -86,7 +86,7 @@ def upload_to_cloudinary(image_path):
     print("Successfully Upload To Cloudinary")
     return global_path['secure_url']
 
-PATH = r"C:\Users\Yoel\Documents\Calvin_AI_Youth_Camp\PixPlore\download.png"
+PATH = r"C:\Users\Yoel\Documents\Calvin_AI_Youth_Camp\PixPlore\download (1).jpeg"
 
 img = Image.open(PATH).convert("RGB")
 img = transform(img)
@@ -105,6 +105,8 @@ category_name = weights.meta["categories"][class_id]
 print(f"Detected: {category_name} ({100 * score:.1f}%)")
 
 spell_data = get_translated_and_spelled_world(category_name)
+global_path = upload_to_cloudinary(PATH)
+history(global_path, spell_data['translated_word'], spell_data['spelling'])
 spelling_sentence = f"Mari Mengejanya Bersama: {' - '.join(spell_data['spelling'])}. {spell_data['translated_word'].capitalize()}"
 
 print("Generated TTS text:", spelling_sentence)
@@ -123,11 +125,8 @@ with open(AUDIO_FILENAME, "wb") as f:
 
 wave_obj = sa.WaveObject.from_wave_file(AUDIO_FILENAME)
 play_obj = wave_obj.play()
+play_obj.wait_done()
 
 if os.path.exists(AUDIO_FILENAME):
     os.remove(AUDIO_FILENAME)
-
-global_path = upload_to_cloudinary(PATH)
-
-history(global_path, spell_data['translated_word'], spell_data['spelling'])
 
