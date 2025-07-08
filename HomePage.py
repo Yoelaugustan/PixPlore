@@ -6,6 +6,41 @@ st.markdown("""
 <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
 
 <style>
+    .texttitle{
+            font-size: 135px;
+            font-weight: bold;
+            margin: 0;
+            padding: 0;
+            color: #000000;
+            text-shadow: 0px 1.75px 4px black;
+    }
+        .textslogan{
+            font-size: 35px;
+            font-weight: bold;
+    }
+        .textsubslogan{
+            font-size: 30px;
+    }
+            
+    @media only screen and (max-width: 600px) {
+        .texttitle{
+            font-size: 60px;
+            font-weight: bold;
+            margin: 0;
+            padding: 0;
+            color: #000000;
+            text-shadow: 0px 1.75px 4px black;
+        }
+        .textslogan{
+            font-size: 15px;
+             font-weight: bold;
+        }
+        .textsubslogan{
+            font-size: 13px;
+        }
+    }
+            
+            
     html, body, .page {
         margin: 0;
         padding: 0;
@@ -17,6 +52,7 @@ st.markdown("""
         font-family: "Barlow", sans-serif;
         font-weight: 600;
         font-style: normal;
+        text-shadow: 0px 1px 2px black;
     }        
     
     .mainbg {
@@ -32,23 +68,19 @@ st.markdown("""
             radial-gradient(at 30% 80%, #c6ffc6, transparent 60%),
             radial-gradient(at 90% 90%, #6a84b5, transparent 60%);
         background-color: #d4d9ff;
-        padding: 0 80px;
+        padding: 0 10vw;
         box-sizing: border-box;
     }
 
     .titleback {
-        ackground-image: linear-gradient(to right, #2da1d6 , #66dbff);
+        //background-image: linear-gradient(to right, #2da1d6 , #66dbff);
         border-radius: 132px;
         //padding: 35px 130px 35px 88px;
-        //text-align: center;
         width: 90%;
     }
 
     .titleheader {
-        font-size: 135px;
-        margin: 0;
-        padding: 0;
-        color: #000000;
+
     }
     section.main > div {
         max-width: 98rem;
@@ -66,11 +98,11 @@ st.markdown("""
 <body class='page'>
     <div class='mainbg' background='GradientMesh.png'>
         <div class='titleback'>
-            <h1 class='titleheader'>PixPlore</h1>
-            <h3 class = 'barlow-semibold', style='margin-top: 0px; margin-bottom: 5px; padding: 0; color: #000000; font-style:barlow;'>Learning through lenses, growing through curiosity.</h3>
-            <h4 class = 'barlow-semibold', style='margin-top: 10px; padding: 0;color: #000000;'>
+            <p class='texttitle'>PixPlore</p>
+            <p class = 'barlow-semibold, textslogan', style='margin-top: 0px; margin-bottom: 5px; padding: 0; color: #000000; font-style:barlow;'>Learning through lenses, growing through curiosity.</p>
+            <p class = 'barlow-semibold, textsubslogan', style='margin-top: 10px; padding: 0;color: #000000;'>
                 Where ordinary objects become valuable lessons, simply through a lens.
-            </h4>
+            </p>
         </div>
     </div>
 </body>
