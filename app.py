@@ -44,7 +44,7 @@ def get_translated_and_spelled_world(word):
     parsed = json.loads(args)
     return parsed
 
-PATH = r"C:\Users\Yoel\Documents\Calvin_AI_Youth_Camp\StaySharp\download (1).jpeg"
+PATH = r"C:\Users\Yoel\Documents\Calvin_AI_Youth_Camp\PixPlore\images.jpeg"
 img = read_image(PATH)
 
 weights = MobileNet_V3_Large_Weights.DEFAULT
@@ -60,8 +60,8 @@ category_name = weights.meta["categories"][class_id]
 
 print(f"Detected: {category_name} ({100 * score:.1f}%)")
 
-spell_data = get_spelling_structured(category_name)
-spelling_sentence = f"Lets Spell Together: {' - '.join(spell_data['spelling'])}. {spell_data['word'].capitalize()}"
+spell_data = get_translated_and_spelled_world(category_name)
+spelling_sentence = f"Mari Mengejanya Bersama: {' - '.join(spell_data['spelling'])}. {spell_data['translated_word'].capitalize()}"
 
 print("Generated TTS text:", spelling_sentence)
 
