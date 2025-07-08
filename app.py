@@ -4,8 +4,26 @@ from openai import OpenAI
 import os
 import simpleaudio as sa
 import json
+import pandas as pd
+import cloudinary
+import cloudinary.uploader
+from PIL import Image
+import torchvision.transforms as transforms
+
+cloudinary.config(
+    cloud_name = "danlcwpuc",
+    api_key = "721559911819599",
+    api_secret = "4_VEcsJ8sUvdf1Olb-2ragubE_0",
+    secure = True
+)
 
 client = OpenAI(api_key="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")
+
+transform = transforms.Compose([
+    transforms.Resize((224, 224)),
+    transforms.ToTensor(),
+    transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+])
 
 def get_translated_and_spelled_world(word):
     functions = [
@@ -44,8 +62,34 @@ def get_translated_and_spelled_world(word):
     parsed = json.loads(args)
     return parsed
 
-PATH = r"C:\Users\Yoel\Documents\Calvin_AI_Youth_Camp\PixPlore\images.jpeg"
-img = read_image(PATH)
+def history(image_path, translated_word, spelled_word, csv_path='history.csv'):
+    spelled_word = " - ".join(spelled_word)
+
+    data = {
+        "word": translated_word,
+        "spelling": spelled_word,
+        "image": image_path
+    }
+
+    if os.path.exists(csv_path):
+        dataset = pd.read_csv(csv_path)
+        dataset = pd.concat([dataset, pd.DataFrame([data])], ignore_index = True)
+    else:
+        dataset = pd.DataFrame([data])
+    
+    dataset.to_csv(csv_path, index=False)
+    print(f"Data added to {csv_path}")
+
+def upload_to_cloudinary(image_path):
+    print("Function Cloudinary Called")
+    global_path = cloudinary.uploader.upload(image_path)
+    print("Successfully Upload To Cloudinary")
+    return global_path['secure_url']
+
+PATH = r"C:\Users\Yoel\Documents\Calvin_AI_Youth_Camp\PixPlore\download.png"
+
+img = Image.open(PATH).convert("RGB")
+img = transform(img)
 
 weights = MobileNet_V3_Large_Weights.DEFAULT
 model = mobilenet_v3_large(weights=weights)
@@ -65,7 +109,7 @@ spelling_sentence = f"Mari Mengejanya Bersama: {' - '.join(spell_data['spelling'
 
 print("Generated TTS text:", spelling_sentence)
 
-AUDIO_FILENAME = "spelling.mp3"
+AUDIO_FILENAME = "spelling.wav"
 
 response = client.audio.speech.create(
     model="gpt-4o-mini-tts",
@@ -75,11 +119,15 @@ response = client.audio.speech.create(
 )
 
 with open(AUDIO_FILENAME, "wb") as f:
-        f.write(response.content)
+    f.write(response.content)
 
 wave_obj = sa.WaveObject.from_wave_file(AUDIO_FILENAME)
 play_obj = wave_obj.play()
-play_obj.wait_done()
 
 if os.path.exists(AUDIO_FILENAME):
     os.remove(AUDIO_FILENAME)
+
+global_path = upload_to_cloudinary(PATH)
+
+history(global_path, spell_data['translated_word'], spell_data['spelling'])
+
