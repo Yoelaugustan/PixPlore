@@ -148,33 +148,6 @@ card_css = """
     padding: 10px;
 }
 
-.burger {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    font-size: 20px;
-    background: rgba(255,255,255,0.7);
-    border: none;
-    border-radius: 5px;
-    padding: 4px 8px;
-    cursor: pointer;
-    z-index: 10;
-}
-
-.delete-button {
-    display: none;
-    position: absolute;
-    top: 35px;
-    right: 5px;
-    background: #ff4d4d;
-    border: none;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 5px;
-    cursor: pointer;
-    z-index: 10;
-}
-
 </style>
 """
 
