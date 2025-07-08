@@ -192,7 +192,7 @@ if picture:
         global_path = upload_to_cloudinary(temp_path)
 
         history(global_path, category_name, spell_data['spelling'], spell_data['description'])
-        spelling_sentence = f"Are You Ready Kids, Let's Spell This Together: {' -- '.join(spell_data['spelling']).upper()}. {category_name.upper()}"
+        spelling_sentence = f"Are You Ready Kids, Let's Spell This Together: {' -- '.join(spell_data['spelling']).upper()}. {category_name.upper()} -- {spell_data['description']}"
 
         print("Generated TTS text:", spelling_sentence)
 
