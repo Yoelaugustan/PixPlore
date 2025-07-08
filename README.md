@@ -1,6 +1,5 @@
 # PixPlore
 
-## Prerequisites
 ## Step 1: Clone the Repository
 
 Open your terminal or command prompt and run the following command to clone the PixPlore repository:
