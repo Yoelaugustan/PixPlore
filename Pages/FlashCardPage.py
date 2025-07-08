@@ -1,51 +1,67 @@
 import streamlit as st
 import streamlit.components.v1 as components
 import pandas as pd
+import base64
+
+def image_to_base64(image_path):
+    with open(image_path, "rb") as f:
+        data = f.read()
+        return base64.b64encode(data).decode()
 
 # CSS untuk flip card saat diklik
 card_css = """
 <style>
 section.main > div {
-    max-width:98rem;
-    }
-    .stApp .main .block-container{
-        padding: 0rem;
-        padding-top: 1.72rem;
-    }
-    .stApp [data-testid='stSidebar']>div:nth-child(1)>div:nth-child(2){
-        padding-top: 0.5rem
-    }
-    img[data-testid="stLogo"] {
-            height: 3.5rem;
-    }
-    .stRadio div[role='radiogroup']>label{
-        margin-right:5px
-        padding-top: 0.1rem
-    }
-    
-    div[data-testid="stSidebarHeader"] {
-  justify-content: center;
-  align-items: start;
-  height: 1px;
-  padding: 1.2em;
-  padding-left: 2.6rem;
+    max-width: 100vw;
+}
 
+html, body, .main, .scroll-container {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+.main {
+    width: 100vw;
+    overflow-y: auto;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+.stApp > header, .stApp > footer {
+    display: none;
+}
+
+.stApp .main .block-container {
+    padding: 0;
+    margin: 0;
+}
+
+.stApp {
+
+    background: radial-gradient(at 30% 20%, #f06acb, transparent 60%),
+        radial-gradient(at 70% 25%, #6f5cff, transparent 60%),
+        radial-gradient(at 30% 80%, #c6ffc6, transparent 60%),
+        radial-gradient(at 90% 90%, #6a84b5, transparent 60%);
+    background-color: #d4d9ff;
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 100vh;
 }
 
 .card-container {
     display: grid;
-    grid-template-columns: repeat(3, 200px);
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     justify-content: center;
-    gap: 30px;
-    padding: 20px;
-    border-style: solid;
-    border-width: medium;
+    gap: 50px;
+    padding: 40px;
+    # border-style: solid;
+    # border-width: medium;
 }
 
 .flip-card {
     background-color: transparent;
-    width: 200px;
-    height: 200px;
+    width: 175px;
+    height: 225px;
     perspective: 1000px;
 }
 
@@ -68,6 +84,15 @@ section.main > div {
     backface-visibility: hidden;
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+}
+
+.flip-card-back {
+    transform: rotateY(180deg);
+    backface-visibility: hidden;
+    overflow: hidden;
 }
 
 .flip-card-front {
@@ -80,6 +105,15 @@ section.main > div {
     height: 100%;
     object-fit: cover;
     border-radius: 15px;
+}
+
+.overlay-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
 }
 
 .flip-card-back {
@@ -111,38 +145,41 @@ document.querySelectorAll('.flip-card').forEach(card => {
 df = pd.read_csv('D:\Github\PixPlore\PixPlore\history.csv')
 cards = [{"label": row['word'], "img": row['image']} for _, row in df.iterrows()]
 
+border_colors = [
+    "#A0F8FF", "#FF8CC6", "#F86666", "#90D76B",
+    "#CBA3FF", "#FFF685", "#A3DFFF", "#FCA3B7",
+    "#D6FF70", "#B5FBC0", "#FFB347", "#FFD8A9",
+    "#B3C7FF", "#66CFFF", "#6BD6D3", "#FFE266"
+]
+
 # Buat kartu HTML
-html = '<div class="card-container">'
+html = '<div class="main"><div class="scroll-container"><div class="card-container">'
 if (cards):
-    for card in cards:
+    for i, card in enumerate(cards):
+        border_number = (i % 16) + 1 # Border cycles
+        border_b64 = image_to_base64(f"flashcard_borders/{border_number}.png")
+        border_color = border_colors[i % len(border_colors)]
+
         html += f'''
-        <div class="flip-card">
-            <div class="flip-card-inner">
-                <div class="flip-card-front">
-                    <img src="{card["img"]}" alt="{card["label"]}">
-                </div>
-                <div class="flip-card-back">
-                    {card["label"]}
+            <div class="flip-card">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <div style="position: relative; width: 100%; height: 100%;">
+                            <img src="{card["img"]}" alt="{card["label"]}" style="width: 100%; height: 100%; object-fit: cover;">
+                            <img src="data:image/png;base64,{border_b64}" class="overlay-img">
+                        </div>
+                    </div>
+                    <div class="flip-card-back" style="background-color: {border_color};">
+                        <div style="text-align: center; padding: 10px; color: black;">
+                            {card["label"]}
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
         '''
-    html += '</div>'
+    html += '</div></div></div>'
 
     # Gabungkan semua dan tampilkan
-    components.html(card_css + html + card_js, height=1000)
+    components.html(card_css + html + card_js, height=500, scrolling=True)
 else:
     st.title("Please snap one picture first!")
-
-#     col1, col2, col3, col4, col5 = st.columns([1, 3, 3, 3, 1])
-
-# for i in range(0, len(image_urls), 3):
-#     with col2:
-#         if i < len(image_urls):
-#             st.image(image_urls[i], use_column_width=True)
-#     with col3:
-#         if i+1 < len(image_urls):
-#             st.image(image_urls[i+1], use_column_width=True)
-#     with col4:
-#         if i+2 < len(image_urls):
-#             st.image(image_urls[i+2], use_column_width=True)
