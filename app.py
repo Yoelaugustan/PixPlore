@@ -1,87 +1,85 @@
-import cv2
-import mediapipe as mp
-import numpy as np
-import time
+from torchvision.io import read_image
+from torchvision.models import mobilenet_v3_large, MobileNet_V3_Large_Weights
+from openai import OpenAI
+import os
+import simpleaudio as sa
+import json
 
-cap = cv2.VideoCapture(0)
+client = OpenAI(api_key="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")
 
-mpDraw = mp.solutions.drawing_utils
-mpFaceMesh = mp.solutions.face_mesh
-faceMesh = mpFaceMesh.FaceMesh(max_num_faces = 1, min_detection_confidence = 0.5, min_tracking_confidence = 0.5)
-drawingSpec = mpDraw.DrawingSpec(thickness = 1, circle_radius = 1)
+def get_translated_and_spelled_world(word):
+    functions = [
+        {
+            "name": "spell_word_indonesian",
+            "description": "Translate an English word into Indonesian and spell the Indonesian word letter by letter for children.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "translated_word": {
+                        "type": "string",
+                        "description": "The translated word in Bahasa Indonesia"
+                    },
+                    "spelling": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "The spelling of the Indonesian word"
+                    }
+                },
+                "required": ["translated_word", "spelling"]
+            }
+        }
+    ]
 
-while cap.isOpened():
-    success, image = cap.read()
-    start = time.time()
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant for children who speaks in Bahasa Indonesia."},
+            {"role": "user", "content": f"Translate the English word '{word}' to Bahasa Indonesia, then spell the translated word letter by letter for children."}
+        ],
+        functions=functions,
+        function_call={"name": "spell_word_indonesian"}
+    )
 
-    image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB) #Flip cam so it is mirrored. Convert color space from BGR to RGB
-    image.flags.writeable = False # To Improve Performance
+    args = response.choices[0].message.function_call.arguments
+    parsed = json.loads(args)
+    return parsed
 
-    results = faceMesh.process(image)
-    image.flags.writeable = True # To Improve Performance
-    image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB) # Convert color space from RGB to BGR
+PATH = r"C:\Users\Yoel\Documents\Calvin_AI_Youth_Camp\StaySharp\download (1).jpeg"
+img = read_image(PATH)
 
-    img_h, img_w, img_c = image.shape
-    face_3d = []
-    face_2d = []
+weights = MobileNet_V3_Large_Weights.DEFAULT
+model = mobilenet_v3_large(weights=weights)
+model.eval()
+preprocess = weights.transforms()
+batch = preprocess(img).unsqueeze(0)
 
-    if results.multi_face_landmarks:
-        for face_landmarks in results.multi_face_landmarks:
-            for idx, lm in enumerate(face_landmarks.landmark):
-                if idx == 33 or idx == 26 or idx == 1 or idx == 61 or idx == 291 or idx == 199:
-                    if idx == 1:
-                        nose_2d = (lm.x * img_w, lm.y * img_h)
-                        nose_3d = (lm.x * img_w, lm.y * img_h, lm.z * 3000)
+prediction = model(batch).squeeze(0).softmax(0)
+class_id = prediction.argmax().item()
+score = prediction[class_id].item()
+category_name = weights.meta["categories"][class_id]
 
-                    x, y = int(lm.x * img_w), int(lm.y * img_h)
+print(f"Detected: {category_name} ({100 * score:.1f}%)")
 
-                    face_2d.append([x, y]) # Get the 2D Coordinates
-                    face_3d.append([x, y, lm.z]) # Get the 3D Coordinates
-            
-            face_2d = np.array(face_2d, dtype=np.float64) # Convert it to NumPy array
-            face_3d = np.array(face_3d, dtype=np.float64) # Convert it to NumPy array
+spell_data = get_spelling_structured(category_name)
+spelling_sentence = f"Lets Spell Together: {' - '.join(spell_data['spelling'])}. {spell_data['word'].capitalize()}"
 
-            focal_length = 1 * img_w
-            cam_matrix = np.array([ [focal_length, 0, img_h/2],
-                                    [0, focal_length, img_h/2],
-                                    [0, 0, 1] ])
-            dist_matrix = np.zeros((4, 1), dtype=np.float64) 
-            success, rot_vec, trans_vec = cv2.solvePnP(face_3d, face_2d, cam_matrix, dist_matrix) # solve pnp
+print("Generated TTS text:", spelling_sentence)
 
-            rmat, jac = cv2.Rodrigues(rot_vec) # get rotational matrix
-            angles, mtxR, mtxQ, Qx, Qy, Qz = cv2.RQDecomp3x3(rmat) # get angles
+AUDIO_FILENAME = "spelling.mp3"
 
-            # Get the y rotation degree
-            x = angles[0] * 360
-            y = angles[1] * 360
-            z = angles[2] * 360
+response = client.audio.speech.create(
+    model="gpt-4o-mini-tts",
+    voice="nova",
+    input=spelling_sentence,
+    response_format="wav"
+)
 
-            # see where the user's head is tilting
-            if y < -15:
-                text = "HEAD_LEFT"
-            elif y > 15:
-                text = "HEAD_RIGHT"
-            elif x < -15:
-                text = "HEAD_DOWN"
-            elif x > 15:
-                text = "HEAD_UP"
-            else:
-                text = "HEAD_FORWARD"
+with open(AUDIO_FILENAME, "wb") as f:
+        f.write(response.content)
 
-            cv2.putText(image, text, (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
-        
-    end = time.time()
-    totalTime = end - start
-    
-    if totalTime > 0:
-        fps = 1 / totalTime
-    else:
-        fps = 0
+wave_obj = sa.WaveObject.from_wave_file(AUDIO_FILENAME)
+play_obj = wave_obj.play()
+play_obj.wait_done()
 
-    cv2.putText(image, f"FPS: {int(fps)}", (20, 450), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 2)
-
-    cv2.imshow('Press "ESC" to close the camera', image)
-    if cv2.waitKey(1) == 27: 
-        break
-
-cap.release()
+if os.path.exists(AUDIO_FILENAME):
+    os.remove(AUDIO_FILENAME)
