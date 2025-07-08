@@ -60,7 +60,7 @@ def get_translated_and_spelled_world(word):
     parsed = json.loads(args)
     return parsed
 
-def history(image_path, translated_word, spelled_word, , csv_path='history.csv'):
+def history(image_path, translated_word, spelled_word, description, csv_path='history.csv'):
     spelled_word = " - ".join(spelled_word).upper()
 
     data = {
