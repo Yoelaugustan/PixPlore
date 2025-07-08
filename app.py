@@ -8,7 +8,6 @@ import pandas as pd
 import cloudinary
 import cloudinary.uploader
 from PIL import Image
-import torchvision.transforms as transforms
 
 cloudinary.config(
     cloud_name = "danlcwpuc",
