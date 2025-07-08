@@ -20,29 +20,25 @@ cloudinary.config(
 
 client = OpenAI(api_key="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")
 
-def get_translated_and_spelled_world(word):
+def get_spelled_and_description_word(word):
     functions = [
         {
-            "name": "spell_word_indonesian",
-            "description": "Translate an English word into Indonesian and spell the Indonesian word letter by letter for children.",
+            "name": "spell_word",
+            "description": "You Are a Great Kindergarten Teacher, Can you Spell the word one letter at a time. So the Children Could Understand",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "translated_word": {
-                        "type": "string",
-                        "description": "The translated word in Bahasa Indonesia"
-                    },
                     "spelling": {
                         "type": "array",
                         "items": {"type": "string"},
-                        "description": "The spelling of the Indonesian word"
+                        "description": "Spell the word letter by letter so children could understand"
                     },
                     "description": {
                         "type": "string",
-                        "description": "Describe the word 1 short sentence that is understandable for children in Bahasa Indonesia"
+                        "description": f"Describe the {word} in 1 short sentence that is understandable for children"
                     }
                 },
-                "required": ["translated_word", "spelling", "description"]
+                "required": ["spelling", "description"]
             }
         }
     ]
@@ -50,22 +46,22 @@ def get_translated_and_spelled_world(word):
     response = client.chat.completions.create(
         model="gpt-4o",
         messages=[
-            {"role": "system", "content": "You are a helpful assistant for children who speaks in Bahasa Indonesia."},
-            {"role": "user", "content": f"Translate the English word '{word}' to Bahasa Indonesia, then spell the translated word letter by letter for children."}
+            {"role": "system", "content": "You are a helpful assistant for children to help spell a word"},
+            {"role": "user", "content": f"Spell the {word} letter by letter for children to spell."}
         ],
         functions=functions,
-        function_call={"name": "spell_word_indonesian"}
+        function_call={"name": "spell_word"}
     )
 
     args = response.choices[0].message.function_call.arguments
     parsed = json.loads(args)
     return parsed
 
-def history(image_path, translated_word, spelled_word, description, csv_path='history.csv'):
+def history(image_path, word, spelled_word, description, csv_path='history.csv'):
     spelled_word = " - ".join(spelled_word).upper()
 
     data = {
-        "word": translated_word.upper(),
+        "word": word.upper(),
         "spelling": spelled_word,
         "description": description,
         "image": image_path
@@ -192,11 +188,11 @@ if picture:
 
         print(f"Detected: {category_name} ({100 * score:.1f}%)")
 
-        spell_data = get_translated_and_spelled_world(category_name)
+        spell_data = get_spelled_and_description_word(category_name)
         global_path = upload_to_cloudinary(temp_path)
 
-        history(global_path, spell_data['translated_word'], spell_data['spelling'], spell_data['description'])
-        spelling_sentence = f"Mari Mengejanya Bersama: {' -- '.join(spell_data['spelling']).upper()}. {spell_data['translated_word'].upper()}"
+        history(global_path, category_name, spell_data['spelling'], spell_data['description'])
+        spelling_sentence = f"Are You Ready Kids, Let's Spell This Together: {' -- '.join(spell_data['spelling']).upper()}. {category_name.upper()}"
 
         print("Generated TTS text:", spelling_sentence)
 
@@ -213,7 +209,7 @@ if picture:
     st.markdown(
         f"""
         <div class="textbox">
-            <p class="texttitle text", style="font-size:35px;">{spell_data['translated_word'].upper()}</p>
+            <p class="texttitle text", style="font-size:35px;">{category_name.upper()}</p>
             <p class="textdescribe text", style="font-size:18px;">{spell_data['description']}</p>
         </div>
         """,
