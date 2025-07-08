@@ -1,0 +1,7 @@
+torch
+torchvision
+openai
+simpleaudio
+os
+pandas
+cloudinary
