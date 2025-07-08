@@ -2,6 +2,8 @@ import streamlit as st
 import streamlit.components.v1 as components
 import pandas as pd
 import base64
+from streamlit.web.server.websocket_headers import _get_websocket_headers
+import os
 
 def image_to_base64(image_path):
     with open(image_path, "rb") as f:
@@ -17,17 +19,6 @@ section.main > div {
 html, body, .main, .scroll-container {
     overflow-x: hidden;
     max-width: 100vw;
-}
-
-.stApp {
-    background: radial-gradient(at 30% 20%, #f06acb, transparent 60%),
-        radial-gradient(at 70% 25%, #6f5cff, transparent 60%),
-        radial-gradient(at 30% 80%, #c6ffc6, transparent 60%),
-        radial-gradient(at 90% 90%, #6a84b5, transparent 60%);
-    background-color: #d4d9ff;
-    background-repeat: no-repeat;
-    background-size: cover;
-    min-height: 100vh;
 }
 
 .main {
@@ -59,18 +50,22 @@ html, body, .main, .scroll-container {
     height: 100vh;
 }
 
+section[data-testid="stMain"] {
+    overflow: hidden;
+    height: 100vh;
+}
+
 [data-testid="stSidebar"] {
     background: linear-gradient(#000b14, #001627);
     color: white;
 }
 [data-testid="stSidebar"] * {
     color: white;
-}        
+}
 
 </style>
 """)
 
-# CSS untuk flip card saat diklik
 card_css = """
 <style>
 .card-container {
@@ -152,10 +147,37 @@ card_css = """
     font-size: 18px;
     padding: 10px;
 }
+
+.burger {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 20px;
+    background: rgba(255,255,255,0.7);
+    border: none;
+    border-radius: 5px;
+    padding: 4px 8px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.delete-button {
+    display: none;
+    position: absolute;
+    top: 35px;
+    right: 5px;
+    background: #ff4d4d;
+    border: none;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 10;
+}
+
 </style>
 """
 
-# Tambahkan JavaScript supaya flip bisa saat diklik
 card_js = """
 <script>
 document.querySelectorAll('.flip-card').forEach(card => {
@@ -169,8 +191,6 @@ document.querySelectorAll('.flip-card').forEach(card => {
 try:
     df = pd.read_csv('./history.csv')
     cards = [{"label": row['word'], "img": row['image']} for _, row in df.iterrows()]
-    if 'deleted_cards' not in st.session_state:
-        st.session_state.deleted_cards = set()
 
     border_colors = [
         "#A0F8FF", "#FF8CC6", "#F86666", "#90D76B",
@@ -179,23 +199,12 @@ try:
         "#B3C7FF", "#66CFFF", "#6BD6D3", "#FFE266"
     ]
 
-    # Buat kartu HTML
     html = '<div class="main"><div class="scroll-container"><div class="card-container">'
 
     for i, card in enumerate(cards):
-        if i in st.session_state.deleted_cards:
-            continue
-
-        delete_button_key = f"delete_{i}"
-        if st.button(f"🗑️ Delete Card {i+1}", key=delete_button_key):
-            st.session_state.deleted_cards.add(i)
-            st.experimental_rerun()
-
-        border_number = (i % 16) + 1 # Border cycles
+        border_number = (i % 16) + 1
         border_b64 = image_to_base64(f"flashcard_borders/{border_number}.png")
         border_color = border_colors[i % len(border_colors)]
-
-        
 
         html += f'''
             <div class="flip-card">
@@ -209,10 +218,6 @@ try:
                     <div class="flip-card-back" style="background-color: {border_color};">
                         <div style="text-align: center; padding: 10px; color: black;">
                             {card["label"]}
-                            <span class="burger-icon">⋮</span>
-                            <div class="menu-popup">
-                                <button onclick="this.closest('.flip-card').remove()">Delete</button>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -220,7 +225,9 @@ try:
         '''
     html += '</div></div></div>'
 
-    # Gabungkan semua dan tampilkan
     components.html(card_css + html + card_js, height=550, scrolling=True)
-except:
+
+except Exception as e:
+    st.error("An error occurred:")
+    st.error(str(e))
     st.title("Please snap one picture first!")
