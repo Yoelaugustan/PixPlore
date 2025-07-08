@@ -149,6 +149,18 @@ st.html(
     .headertext{
         font-weight: bold;
     }
+
+    [data-testid="stSelectbox"] {
+        background-color: #0b0b40;
+        border-radius: 12px;
+        padding: 10px;
+    }
+
+    [data-testid="stSelectbox"] label {
+        text-shadow: 0px 0.5px 2px #0000ff;
+        margin-bottom: 10px;
+    }
+
     
     </style>
 
@@ -161,7 +173,12 @@ st.html("""
     <div class="topbox" style="font-size:20px;">
         <p class="texttitle">Pix-it!</p>
     </div>
-    """)
+""")
+
+option = st.selectbox(
+    'Which Voice Do You Want',
+    ('Email', 'Home phone', 'Mobile phone')
+)
 
 # enable = st.checkbox("Enable camera")
 picture = st.camera_input("", disabled=False, label_visibility="hidden")
