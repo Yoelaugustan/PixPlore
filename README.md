@@ -43,7 +43,15 @@ With your virtual environment activated, install the required dependencies:
 pip install -r requirements.txt
 ```
 
-## Step 4: Run the Application
+## Step 4: Create .env
+
+Create a ".env" file and insert your OpenAI API Key
+
+```bash
+OPENAI_API_KEY="Your API Key"
+```
+
+## Step 5: Run the Application
 
 Once all dependencies are installed, you can run the Streamlit application:
 
@@ -51,7 +59,7 @@ Once all dependencies are installed, you can run the Streamlit application:
 streamlit run HomePage.py
 ```
 
-## Step 5: Access the Application
+## Step 6: Access the Application
 
 After running the command, Streamlit will automatically open your default web browser and navigate to the application. If it doesn't open automatically, you can access it at:
 
