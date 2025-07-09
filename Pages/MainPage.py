@@ -170,6 +170,11 @@ st.html(
     background-color:black
     }
     
+    .stAppToolbar{
+    background-color:#000b14;
+    color : white;
+    }
+
     </style>
 
     <body>

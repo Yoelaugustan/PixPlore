@@ -44,7 +44,10 @@ section[data-testid="stMain"] {
 [data-testid="stSidebar"] * {
     color: white;
 }
-
+.stAppToolbar{
+    background-color:#000b14;
+    color : white;
+    }
 .texttitle {
     font-size: 6vw;
     font-weight: 800;
