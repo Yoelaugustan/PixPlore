@@ -10,6 +10,9 @@ import cloudinary
 import cloudinary.uploader
 from PIL import Image
 import tempfile
+from dotenv import load_dotenv
+
+load_dotenv()  # Load environment variables from .env file
 
 cloudinary.config(
     cloud_name = "danlcwpuc",
@@ -17,8 +20,8 @@ cloudinary.config(
     api_secret = "4_VEcsJ8sUvdf1Olb-2ragubE_0",
     secure = True
 )
-
-client = OpenAI(api_key="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")
+api_key = os.getenv('OPENAI_API_KEY')
+client = OpenAI(api_key=api_key)
 
 def get_spelled_and_description_word(word):
     functions = [
