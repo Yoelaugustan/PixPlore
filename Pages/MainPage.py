@@ -120,10 +120,14 @@ st.html(
         background-repeat: no-repeat;
         background-position: center;
     }
-    [data-testid=stSidebar] {
-        background-image: linear-gradient(#000b14, #001627);
+    [data-testid="stSidebar"] {
+        background: linear-gradient(#000b14, #001627);
         color: white;
     }
+    [data-testid="stSidebar"] * {
+        color: white;
+    }
+
     .textbox{
         background-image: linear-gradient(#000b14, #0b0b40);
         margin-top: 40px;
@@ -162,6 +166,9 @@ st.html(
         margin-bottom: 10px;
     }
 
+    .st-bb{
+    background-color:black
+    }
     
     </style>
 
@@ -171,7 +178,7 @@ st.html(
 )
 
 st.html("""
-    <div class="topbox" style="font-size:20px;">
+    <div class="topbox" style="font-size:20px; color: #ffffff;">
         <p class="texttitle">Pix-it!</p>
     </div>
 """)
@@ -256,8 +263,8 @@ if picture:
     st.markdown(
         f"""
         <div class="textbox">
-            <p class="texttitle text", style="font-size:35px;">{category_name.upper()}</p>
-            <p class="textdescribe text", style="font-size:18px;">{spell_data['description']}</p>
+            <p class="texttitle text", style="font-size:35px; color: #ffffff;">{category_name.upper()}</p>
+            <p class="textdescribe text", style="font-size:18px; color: #ffffff;">{spell_data['description']}</p>
         </div>
         """,
         unsafe_allow_html=True
